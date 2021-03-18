@@ -42,8 +42,16 @@ include macros.asm ;Importar el archivo "macros.asm"
     menarchivo db 13,10,"Ingresar ruta del archivo: ","$"
     ;Mensaje de reporte
     menrep db 13,10,"Reporte creado","$"
-.code
+    menerror db 13,10,"Error","$"
 
+    mensum db 13,10,"Suma: ","$"
+    menresta db 13,10,"Resta: ","$"
+    menmul db 13,10,"Multiplicacion: ","$"
+    mendiv db 13,10,"Division: ","$"
+    numero1 db ?
+    numero2 db ?
+
+.code
 main proc ;Inicio procedimiento principal
     ClearScreen
     Imprimir encabezado
