@@ -22,22 +22,22 @@ EnterOption macro   ;Read input for options
 endm
 Print16 macro Regis ;Print a 16bit number
     local zero,noz
-    mov bx,4
-    xor ax,ax
-    mov ax,Regis
-    mov cx,10
+    mov bx,4    ;Moves 4 into bx
+    xor ax,ax   ;Clears ax
+    mov ax,Regis    ;Moves Regis into ax
+    mov cx,10   ;Moves 10 into cx
     zero:
-        xor dx,dx
-        div cx
-        push dx
-        dec bx
-        jnz zero
-        xor bx,4
+        xor dx,dx   ;Clear dx
+        div cx  ;Divide ax by 10
+        push dx ;Push the residue into stack
+        dec bx  ;Decrease counter
+        jnz zero    ;Jump if bx is not zero to zero
+        xor bx,4    ;Set bx to 4
     noz:
-        pop dx
-        PrintN dl
-        dec bx
-        jnz noz
+        pop dx  ;Pop dx from sttack
+        PrintN dl   ;Print digit in dl
+        dec bx  ;Decrease bx
+        jnz noz ;Jump if bx is not zero to noz
 endm
 PrintN macro Num    ;Print a digit
     xor ax,ax
@@ -267,5 +267,98 @@ MCDivide macro
     DecimalToText number1n, resultado
     ;PrintText mesdiv
     ;PrintText resultado
+endm
+;******************************************************************************************
+;MACROS FOR FACTORIAL**********************************************************************
+ModoFactorial macro
+    ClearScreen
+    PrintText factmenu
+    PrintText promptfact
+    ReadText textfactorial
+    TextToDecimal textfactorial, numfactorial
+    CalcFactorial
+    DecimalToText numresfact, txtresfact
+    PrintText opfact
+    PrintText operationsfact
+    PrintText resfact
+    PrintText txtresfact
+endm
+CalcFactorial macro
+    Local decrease
+    Local calc
+    Local done
+    Local adjust
+    Local zero
+    Local fin
+    Local caseesp
+    Local determine
+    Local calcant
+    xor si,si ;Clear si counter
+    xor ax,ax   ;Clear ax
+    xor bx,bx   ;Clear bx
+    mov bx,numfactorial ;Move numbfactorial into bx
+    push bx ;Push bx into stack
+    cmp bx,0  ;Compare if bx is 0
+    jne decrease    ;bx is not 0 go to decrease
+    jmp zero    ;bx is 0 go to zero
+    decrease:
+        sub bx,1    ;Substract 1 from bx
+        push bx
+        cmp bx,1    ;Compare if bx is 1
+        jne decrease    ;If bx is not 1 go to decrease
+        AddOperationNumber numfactorial
+        cmp numfactorial,7
+        jne adjust
+        jmp caseesp    ;If bx is 1 go to caseesp
+    caseesp:
+        AddOperationNumber numfactorial
+        jmp adjust
+    adjust:
+        mov ax,1    ;ax is now 1
+        mov cx,33  ;Move ! into ax
+        sub cx,30h  ;Make conversion
+        AddOperationNumber cx
+        mov cx,61  ;Move = into ax
+        sub cx,30h  ;Make conversion
+        AddOperationNumber cx
+        jmp calc
+    calcant:
+        imul bx ;Multiply ax by bx
+        AddOperationNumber bx
+        mov cx,42  ;Move * into ax
+        sub cx,30h  ;Make conversion
+        AddOperationNumber cx
+        jmp calc
+    calc:
+        pop bx  ;Pop last element from stack
+        cmp bx,numfactorial ;Check if bx equals the number of input
+        jne calcant    ;If not go to calc
+        imul bx ;Multiply ax by bx
+        AddOperationNumber bx
+        jmp done
+    done:
+        mov numresfact, ax  ;Move ax into numresfact
+        jmp fin ;Jump to fin
+    zero:
+        AddOperationNumber 0
+        mov ax,33  ;Move ! into ax
+        sub ax,30h  ;Make conversion
+        AddOperationNumber ax
+        mov ax,61  ;Move = into ax
+        sub ax,30h  ;Make conversion
+        AddOperationNumber ax
+        AddOperationNumber 1
+        mov numresfact, 1   ;Move 1 into numresfact
+    fin:
+        mov ax,24h  ;Move $ into ax
+        sub ax,30h  ;Make conversion
+        AddOperationNumber ax
+endm
+AddOperationNumber macro value
+    xor dx,dx   ;Clear dx registry
+    mov dx,value    ;Move value into dx
+    add dx,30h  ;Make conversion
+    mov operationsfact[si],dx   ;Move dx into operationsfact into si
+    inc si  ;Increment si
 endm
 ;******************************************************************************************

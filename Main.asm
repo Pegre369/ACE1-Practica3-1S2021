@@ -4,44 +4,54 @@ include Macros.asm  ;Import file "macros.asm"
 .stack 100h
 .data
     ;Text for header************************************************************
-    header  db 13,10,"UNIVERSIDAD DE SAN CARLOS DE GUATEMALA"
-            db 13,10,"FACULTAD DE INGENIERIA"
-            db 13,10,"ESCUELA DE CIENCIAS Y SISTEMAS"
-            db 13,10,"ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1"
-            db 13,10,"SECCION A"
-            db 13,10,"PRIMER SEMESTRE 2021"
-            db 13,10,"Sergio Sebastian Chacon Herrera"
-            db 13,10,"201709159","$"
+        header  db 13,10,"UNIVERSIDAD DE SAN CARLOS DE GUATEMALA"
+                db 13,10,"FACULTAD DE INGENIERIA"
+                db 13,10,"ESCUELA DE CIENCIAS Y SISTEMAS"
+                db 13,10,"ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1"
+                db 13,10,"SECCION A"
+                db 13,10,"PRIMER SEMESTRE 2021"
+                db 13,10,"Sergio Sebastian Chacon Herrera"
+                db 13,10,"201709159","$"
     ;Text for main menu*********************************************************
-    mainmenu    db 13,10,"------MENU PRINCIPAL------"
-                db 13,10,"Opciones:"
-                db 13,10,"1. Cargar Archivo"
-                db 13,10,"2. Modo Calculadora"
-                db 13,10,"3. Factorial"
-                db 13,10,"4. Crear Reporte"
-                db 13,10,"5. Salir"
-                db 13,10,"Elegir: ",'$'
+        mainmenu    db 13,10,"------MENU PRINCIPAL------"
+                    db 13,10,"Opciones:"
+                    db 13,10,"1. Cargar Archivo"
+                    db 13,10,"2. Modo Calculadora"
+                    db 13,10,"3. Factorial"
+                    db 13,10,"4. Crear Reporte"
+                    db 13,10,"5. Salir"
+                    db 13,10,"Elegir: ",'$'
     ;Texts for menu Modo Calculadora********************************************
-    calcmenu  db 13,10,"-----MODO CALCULADORA-----","$"
-    promptnum   db 13,10,"Ingresar Numero:","$"
-    promptop    db 13,10,"Ingresar Operador:","$"
-    promptcont  db 13,10,"Ingresar Operador o ; para finalizar:","$"
-    mesres    db 13,10,"El resultado es: ","$"
-    messave   db 13,10,"Desea guardar (S/N)","$"
-    messaven  db 13,10,"No se guardo la operacion","$"
-    messavey  db 13,10,"Se guardo la operacion","$"
-    meserr db 13,10,"Error","$"
-    mesadd db 13,10,"Suma: ","$"
-    messub db 13,10,"Resta: ","$"
-    mesmul db 13,10,"Multiplicacion: ","$"
-    mesdiv db 13,10,"Division: ","$"
-    number1 db 5 dup ("$")
-    number2 db 5 dup ("$")
-    number1n dw ?
-    number2n dw ?
-    resultado dw ?
-    ;Texts for menu Modo Factorial
-    factmenu db 13,10,"---------FACTORIAL--------","$"
+        calcmenu  db 13,10,"-----MODO CALCULADORA-----","$"
+        promptnum   db 13,10,"Ingresar Numero:","$"
+        promptop    db 13,10,"Ingresar Operador:","$"
+        promptcont  db 13,10,"Ingresar Operador o ; para finalizar:","$"
+        mesres    db 13,10,"El resultado es: ","$"
+        messave   db 13,10,"Desea guardar (S/N)","$"
+        messaven  db 13,10,"No se guardo la operacion","$"
+        messavey  db 13,10,"Se guardo la operacion","$"
+        meserr db 13,10,"Error","$"
+        mesadd db 13,10,"Suma: ","$"
+        messub db 13,10,"Resta: ","$"
+        mesmul db 13,10,"Multiplicacion: ","$"
+        mesdiv db 13,10,"Division: ","$"
+        number1 db 5 dup ("$")
+        number2 db 5 dup ("$")
+        number1n dw ?
+        number2n dw ?
+        resultado dw ?
+    ;Texts for menu Modo Factorial**********************************************
+        factmenu db 13,10,"---------FACTORIAL--------","$"
+        promptfact db 13,10,"Ingrese un numero: ","$"
+        opfact db 13,10,"Operaciones: ","$"
+        resfact db 13,10,"Resultado: ","$"
+        textfactorial db 5 dup ("$")    ;Input of number factorial in text
+        numfactorial dw ?   ;textfacotial in decimal format
+        numresfact dw ? ;Saves value from factorial in decimal
+        txtresfact dw ? ;Saves value from factorial in text
+        factsign db "!="
+        factmul db "*"
+        operationsfact dw 20 dup(0),"$"
     ;Texts for menu Cargar Archivo
     filemenu db 13,10,"---------CARGAR ARCHIVO--------","$"
     promptfile db 13,10,"Ingresar ruta del archivo: ","$"
@@ -54,7 +64,6 @@ main proc   ;Main procedure starts
     mov ax,@data
     mov ds,ax
     ;ClearScreen
-
     PrintText header
     start:
         PrintText mainmenu
@@ -71,6 +80,8 @@ main proc   ;Main procedure starts
         case3:  ;Factorial
             cmp bl,"3" ;Compare if bl is 3
             jne case4 ;bl is not 3, go to case4
+            ModoFactorial
+            jmp start
         case4:  ;Crear Reporte
             cmp bl,"4" ;Compare if bl is 4
             jne case5 ;bl is not 4, go to case5
