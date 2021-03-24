@@ -364,6 +364,8 @@ endm
 ;******************************************************************************************
 ;MACROS FOR CREAR REPORTE******************************************************************
 CrearReporte macro
+    MakeDate
+    MakeTime
     CreateFile repname, handleReporte
     OpenFile repname,handleReporte
     WriteFile handleReporte,mainlbl,17
@@ -376,9 +378,17 @@ CrearReporte macro
     WriteFile handleReporte,repstudent,54
     WriteFile handleReporte,repid,28
     WriteFile handleReporte,repdate,18
-    ;Content for date here
+    WriteFile handleReporte,day,2
+    WriteFile handleReporte,datesep,1
+    WriteFile handleReporte,month,2
+    WriteFile handleReporte,datesep,1
+    WriteFile handleReporte,year,4
     WriteFile handleReporte,reptime,17
-    ;Content for time here
+    WriteFile handleReporte,hour,2
+    WriteFile handleReporte,timesep,1
+    WriteFile handleReporte,min,2
+    WriteFile handleReporte,timesep,1
+    WriteFile handleReporte,sec,2
     WriteFile handleReporte,otable,16
     WriteFile handleReporte,reprow1,58
     ;Content for table here
@@ -390,15 +400,67 @@ CrearReporte macro
     PrintText mesrep
 endm
 MakeDate macro  ;Create the date
+    xor ax,ax   ;Clear ax
+    xor bx,bx   ;Clear bx
+    getDate
+    mov bx,cx   ;Move year into bx
+    ToString bx,year
+    xor bx,bx
+    getDate
+    mov bl,dh   ;Move month into bl
+    ToString bx,month
+    xor dl,dl
+    getDate
+    mov bl,dl   ;Move day into bx
+    ToString bx,day
+    xor bx,bx
 endm
-MakeTime macro  ;Create the time
+MakeTime macro
+    xor ax,ax   ;Clear ax
+    xor bx,bx   ;Clear bx
+    getTime
+	mov bl,ch   ;Move hours into bl
+	ToString bx,hour
+	getTime
+	mov bl,cl   ;Move minutes into bl
+	ToString bx,min
+	getTime
+	mov bl,dh   ;Move seconds into bl
+	ToString bx,sec
 endm
-getFecha macro  ;Obtain system date
+getDate macro  ;Obtain system date
 	mov ah,2ah
 	int 21h
 endm
-getHora macro   ;Obtain system time
+getTime macro   ;Obtain system time
 	mov ah,2ch
 	int 21h
+endm
+ToString macro input, result
+    Local divide
+    Local make
+    Local divide2
+    xor si,si   ;Clear counter si
+    xor cx,cx   ;Clear xc registry
+    xor ax,ax   ;Clear ax registry
+    mov ax,input    ;Move input to ax
+    mov dl,10   ;Move 10 to dl
+    jmp divide
+    divide:
+        div dl  ;Divide ax by dl
+        inc cx  ;Increment cx
+        push ax ;Push result into stack
+        cmp al, 0   ;Compare al with 0
+        je  make
+        jmp divide2
+    divide2:
+        xor ah,ah   ;Clear ah registry
+        jmp divide
+    make:
+        pop ax  ;Obtain last element of stack ax
+        add ah,30h  ;Make conversion
+        mov result[si],ah   ;Move ah into result position si
+        inc si  ;Increment si
+        Loop make
 endm
 ;******************************************************************************************

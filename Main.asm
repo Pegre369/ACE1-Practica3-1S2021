@@ -80,7 +80,14 @@ include Archivos.asm
         ctr db 13,10,"</tr>","$"
         oth db 13,10,"<th>","$"
         cth db 13,10,"</th>","$"
-
+        datesep db "/","$" ;3
+        timesep db ":","$" ;3
+        day db 2 dup(' ')
+	    month db 2 dup(' ')
+	    year db 4 dup(' ')
+	    hour db 2 dup(' ')
+	    min db 2 dup(' ')
+	    sec db 2 dup(' ')
 .code
 main proc   ;Main procedure starts
     mov ax,@data
