@@ -362,3 +362,43 @@ AddOperationNumber macro value
     inc si  ;Increment si
 endm
 ;******************************************************************************************
+;MACROS FOR CREAR REPORTE******************************************************************
+CrearReporte macro
+    CreateFile repname, handleReporte
+    OpenFile repname,handleReporte
+    WriteFile handleReporte,mainlbl,17
+    WriteFile handleReporte,ohtml,8
+    WriteFile handleReporte,ohead,8
+    WriteFile handleReporte,reptitle,35
+    WriteFile handleReporte,repheader,39
+    WriteFile handleReporte,chead,9
+    WriteFile handleReporte,obody,8
+    WriteFile handleReporte,repstudent,54
+    WriteFile handleReporte,repid,28
+    WriteFile handleReporte,repdate,18
+    ;Content for date here
+    WriteFile handleReporte,reptime,17
+    ;Content for time here
+    WriteFile handleReporte,otable,16
+    WriteFile handleReporte,reprow1,58
+    ;Content for table here
+    WriteFile handleReporte,ctable,10
+    WriteFile handleReporte,cbody,9
+    WriteFile handleReporte,chtml,9
+    CloseFile handleReporte
+    ClearScreen
+    PrintText mesrep
+endm
+MakeDate macro  ;Create the date
+endm
+MakeTime macro  ;Create the time
+endm
+getFecha macro  ;Obtain system date
+	mov ah,2ah
+	int 21h
+endm
+getHora macro   ;Obtain system time
+	mov ah,2ch
+	int 21h
+endm
+;******************************************************************************************
