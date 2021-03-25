@@ -41,6 +41,13 @@ include Archivos.asm
         number1n dw ?
         number2n dw ?
         resultado dw ?
+        count1 word 0000b   ;Counter for signs
+        meswarning db 13,10,"Se alcanzo el maximo de operaciones","$"
+        valcont dw ?    ;Saves the value of count1
+        table1 db 30 dup ("$")
+        operation dw ?  ;Holds current operation
+        idoperation db 10 dup ("$") ;Holds id of current operation
+        resoperation db 10 dup ("$")    ;Holds result of current operation
     ;Texts for menu Modo Factorial**********************************************
         factmenu db 13,10,"---------FACTORIAL--------","$"
         promptfact db 13,10,"Ingrese un numero: ","$"
@@ -54,8 +61,8 @@ include Archivos.asm
         factmul db "*"
         operationsfact dw 20 dup(0),"$"
     ;Texts for menu Cargar Archivo
-    filemenu db 13,10,"---------CARGAR ARCHIVO--------","$"
-    promptfile db 13,10,"Ingresar ruta del archivo: ","$"
+        filemenu db 13,10,"---------CARGAR ARCHIVO--------","$"
+        promptfile db 13,10,"Ingresar ruta del archivo: ","$"
     ;Texts for menu Reportes
         mesrep db 13,10,"Reporte creado","$"
         repname db "REPORTE.HTM","$"

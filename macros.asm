@@ -71,7 +71,7 @@ TextToDecimal macro buffer, des ;Converts text to decimal
     Local negate
 	xor ax,ax   ;Clears ax registry
 	xor bx,bx   ;Clears bx registry
-	xor cx,cx   ;Clears cs registry
+	xor cx,cx   ;Clears cx registry
 	xor di,di   ;Clears di resistry, 0 = Positive, 1 = Negative
 	mov bx,10	;Moves 10 into bx
 	xor si,si   ;Clears si registry, for counter of position inside buffer
@@ -160,7 +160,11 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
     local divide
     local fin
     local err
+    local check
+    local asksave
     ;Modo Calculadora begins
+    mov count1,0    ;Reset counter
+    push count1 ;Save counter value
     ClearScreen
     PrintText calcmenu
     PrintText promptnum
@@ -169,6 +173,7 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
     PrintText promptop
     EnterOption
     mov ch,al   ;Save operand into ch
+    CheckCounter
     PrintText promptnum
     ReadText number2 ;Save number2
     operate:    ;Label to check which operation to perform
@@ -181,6 +186,13 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
         mov ch,al
         cmp ch,";"  ;Compare if ch is ;
         jne loop2   ;ch is not ; so jump to loop2
+        jmp asksave
+    check:
+        cmp valcont,10
+        jne loop
+        PrintText meswarning
+        jmp asksave
+    asksave:
         PrintText mesres   ;ch is ; so it continues
         PrintText resultado
         PrintText messave
@@ -190,6 +202,7 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
         jne saven   ;bl is not s so jump to saven
         jmp saves   ;bl is s no jump to saves
     loop2:
+        CheckCounter
         PrintText promptnum
         ReadText number2
         jmp operate
@@ -209,22 +222,22 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
         jmp fin ;Jumps to fin
     addition:
         MCAdd
-        jmp loop   ;Jumps to loop
+        jmp check   ;Jumps to loop
     substract:
         cmp ch,"-"  ;Compares if ch is -
         jne multiply    ;ch is not - so jump to multiply
         MCSubstract
-        jmp loop   ;Jumps to loop
+        jmp check   ;Jumps to loop
     multiply:
         cmp ch,"*"  ;Compares if ch is *
         jne divide  ;ch is not * so jumpt to divide
         MCMultiply
-        jmp loop    ;Jumps to loop 
+        jmp check    ;Jumps to loop 
     divide:
         cmp ch,"/"  ;Compares if ch is /
         jne err ;ch is not / so jump to err
         MCDivide
-        jmp loop    ;Jumps to loop
+        jmp check    ;Jumps to loop
     err:
         ClearScreen
         PrintText meserr
@@ -267,6 +280,13 @@ MCDivide macro
     DecimalToText number1n, resultado
     ;PrintText mesdiv
     ;PrintText resultado
+endm
+CheckCounter macro
+    pop count1
+    inc count1
+    mov ax,count1
+    mov valcont,ax
+    push count1
 endm
 ;******************************************************************************************
 ;MACROS FOR FACTORIAL**********************************************************************
@@ -392,6 +412,9 @@ CrearReporte macro
     WriteFile handleReporte,otable,16
     WriteFile handleReporte,reprow1,58
     ;Content for table here
+
+
+
     WriteFile handleReporte,ctable,10
     WriteFile handleReporte,cbody,9
     WriteFile handleReporte,chtml,9
