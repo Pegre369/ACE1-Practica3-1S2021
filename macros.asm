@@ -165,26 +165,29 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
     ;Modo Calculadora begins
     mov count1,0    ;Reset counter
     push count1 ;Save counter value
+    mov countadd,0  ;Reset counter for operation
     ClearScreen
     PrintText calcmenu
     PrintText promptnum
     ReadText number1 ;Save number1
+    AddToOperation number1, operation, countadd
     TextToDecimal number1, number1n
     PrintText promptop
-    EnterOption
-    mov ch,al   ;Save operand into ch
+    ReadText operand
+    AddToOperation operand, operation, countadd
     CheckCounter
     PrintText promptnum
     ReadText number2 ;Save number2
+    AddToOperation number2, operation,countadd
     operate:    ;Label to check which operation to perform
-        cmp ch,"+"  ;Compare if ch is +
+        cmp operand,"+"  ;Compare if ch is +
         jne substract   ;If ch is not h jump to substract
         jmp addition    ;Jump to addition
     loop:
         PrintText promptcont
-        EnterOption
-        mov ch,al
-        cmp ch,";"  ;Compare if ch is ;
+        ReadText operand
+        AddToOperation operand, operation, countadd
+        cmp operand,";"  ;Compare if ch is ;
         jne loop2   ;ch is not ; so jump to loop2
         jmp asksave
     check:
@@ -205,15 +208,23 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
         CheckCounter
         PrintText promptnum
         ReadText number2
+        AddToOperation number2, operation,countadd
         jmp operate
     saves:  ;Operation is saved
         ClearScreen
+        inc countid
+        PrintText operation
+        PrintText resultado
+        SaveOperation operation
         PrintText messavey
         jmp fin ;Jumps to fin
     saven:  ;Operation is not saved
         cmp bl,"S"  ;Compare if bl is S
         jne saven2  ;bl is not S so jump to saven2
         ClearScreen
+        PrintText operation
+        PrintText resultado
+        SaveOperation operation
         PrintText messavey
         jmp fin ;Jumps to fin
     saven2:
@@ -224,17 +235,17 @@ ModoCalculadora macro   ;Enters "Modo Calculadora"
         MCAdd
         jmp check   ;Jumps to loop
     substract:
-        cmp ch,"-"  ;Compares if ch is -
+        cmp operand,"-"  ;Compares if ch is -
         jne multiply    ;ch is not - so jump to multiply
         MCSubstract
         jmp check   ;Jumps to loop
     multiply:
-        cmp ch,"*"  ;Compares if ch is *
+        cmp operand,"*"  ;Compares if ch is *
         jne divide  ;ch is not * so jumpt to divide
         MCMultiply
         jmp check    ;Jumps to loop 
     divide:
-        cmp ch,"/"  ;Compares if ch is /
+        cmp operand,"/"  ;Compares if ch is /
         jne err ;ch is not / so jump to err
         MCDivide
         jmp check    ;Jumps to loop
@@ -287,6 +298,38 @@ CheckCounter macro
     mov ax,count1
     mov valcont,ax
     push count1
+endm
+AddToOperation macro input, text, counter
+    Local check
+    Local fin
+    Local conca
+    xor si,si   ;Clear counter si
+    xor cx,cx   ;Clear cx registry
+    mov cl,input[si]    ;Move first char into cl
+    check:
+        cmp cl,"$"  ;Check if cl is $
+        jne conca   ;If it is not $ go to conca
+        jmp fin ;If it is $ go to fin
+    conca:
+        mov di,counter
+        mov text[di],cl    ;Move char into operation
+        inc counter    ;Increment element in stack
+        inc si  ;Increment position in value
+        mov cl,input[si]    ;Move next char into cl 
+        jmp check   ;Go to check
+    fin:
+        ;PrintText operation
+endm
+SaveOperation macro oper,rez
+    mov di,countarray
+    ;mov cl,id
+    ;mov idtable[di],cl
+    mov cl,oper
+    mov optable[di],cl
+    ;mov bx,rez
+    ;mov restable[di],bx
+    inc di
+    add countarray,di
 endm
 ;******************************************************************************************
 ;MACROS FOR FACTORIAL**********************************************************************
@@ -384,6 +427,9 @@ endm
 ;******************************************************************************************
 ;MACROS FOR CREAR REPORTE******************************************************************
 CrearReporte macro
+    Local addrow
+    Local fin
+    Local check
     MakeDate
     MakeTime
     CreateFile repname, handleReporte
@@ -412,15 +458,53 @@ CrearReporte macro
     WriteFile handleReporte,otable,16
     WriteFile handleReporte,reprow1,58
     ;Content for table here
-
-
-
-    WriteFile handleReporte,ctable,10
-    WriteFile handleReporte,cbody,9
-    WriteFile handleReporte,chtml,9
-    CloseFile handleReporte
-    ClearScreen
-    PrintText mesrep
+    xor si,si
+    mov cl,optable[si]
+    check:
+        cmp cl,"$"
+        jne addrow    ;If cl is not $ go to addrow
+        jmp fin ;If cl is $ go to fin
+    addrow:
+        mov operation,cl
+        WriteFile handleReporte,otr,SIZEOF otr-1
+        WriteFile handleReporte,oth,SIZEOF oth-1
+        ;ID HERE
+        WriteFile handleReporte,cth,SIZEOF cth-1
+        WriteFile handleReporte,oth,SIZEOF oth-1
+        WriteChar operation
+        WriteFile handleReporte,cth,SIZEOF cth-1
+        WriteFile handleReporte,oth,SIZEOF oth-1
+        ;RESULT HERE
+        WriteFile handleReporte,cth,SIZEOF cth-1
+        WriteFile handleReporte,ctr,SIZEOF ctr-1
+        inc si
+        mov cl,optable[si]
+        jmp check
+    fin:
+        WriteFile handleReporte,ctable,10
+        WriteFile handleReporte,cbody,9
+        WriteFile handleReporte,chtml,9
+        CloseFile handleReporte
+        ClearScreen
+        PrintText mesrep
+endm
+WriteChar macro text
+    local check
+    local loop
+    local fin
+    xor di,di
+    mov dl,text[di]
+    check:
+        cmp dl,"$"
+        jne loop
+        jmp fin
+    loop:
+        mov charw,dl
+        WriteFile handleReporte,charw,2
+        inc di
+        mov dl,text[di]
+        jmp check
+    fin:
 endm
 MakeDate macro  ;Create the date
     xor ax,ax   ;Clear ax
